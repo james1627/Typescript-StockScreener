@@ -1,1 +1,1 @@
-# Typescript-StockScreener
+# Typescript-stocks

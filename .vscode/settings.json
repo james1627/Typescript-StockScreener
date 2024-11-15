@@ -1,0 +1,16 @@
+{
+  "files.trimTrailingWhitespace": true,
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "*.class.ts": "*.interface.ts",
+    "*.controller.ts": "*.service.ts,*.dto.ts",
+    "*.component.ts": "*.html,*.scss,*.spec.ts",
+    "*.ts": "${capture}.test.ts,I${capture}.ts",
+    "*.json": "*.schema.json",
+    "package.json": "yarn.lock,.gitignore,tsconfig.json,eslint.config.mjs"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[typescript]": {
+    "editor.formatOnSave": true
+  }
+}
