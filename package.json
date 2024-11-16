@@ -1,5 +1,5 @@
 {
-  "name": "Typescript-stocks",
+  "name": "typescript-stocks",
   "packageManager": "yarn@4.5.0",
   "devDependencies": {
     "@eslint/js": "^9.11.1",
@@ -7,10 +7,10 @@
     "@types/node": "^22.7.4",
     "@types/pg": "^8.11.10",
     "@types/typescript": "^2.0.0",
-    "eslint": "^9.11.1",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.2",
+    "typescript": "^5.6.3",
+    "eslint": "^9.11.1",
     "typescript-eslint": "^8.7.0"
   },
   "dependencies": {

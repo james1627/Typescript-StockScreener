@@ -9,8 +9,10 @@
     "*.json": "*.schema.json",
     "package.json": "yarn.lock,.gitignore,tsconfig.json,eslint.config.mjs"
   },
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "[typescript]": {
-    "editor.formatOnSave": true
-  }
+  "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+  "editor.formatOnType": false, // required
+  "editor.formatOnSave": true, // optional
+  "editor.formatOnSaveMode": "file", // required to format on save
+  "files.autoSave": "onFocusChange", // optional but recommended
+  "vs-code-prettier-eslint.prettierLast": false // set as "true" to run 'prettier' last not first
 }

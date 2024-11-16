@@ -17,6 +17,7 @@ export default class Finder implements IFinder {
     async GetAllStocks(): Promise<void> {
         const data = await this.fileSystemService.readFile(this.pathToAllStocks);
         const possibleTickers = data.split('\n').map(word => word.trim()).filter(word => word.length > 0);
-        console.log(possibleTickers);
+        console.log(JSON.stringify(possibleTickers));
+        await this.fileSystemService.writeFile("allstocks.json", JSON.stringify(possibleTickers));
     }
 }

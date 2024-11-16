@@ -33,13 +33,13 @@ class FileSystemService implements IFileSystemService {
   }
 
   async writeFile(filePath: string, data: string): Promise<IPath> {
-    const location = await this.resolve(filePath);
     try {
-      await fs.writeFile(location.absolutePath, data, 'utf-8');
+      await fs.writeFile(filePath, data, 'utf-8');
     } catch (error) {
       console.error(`Failed to write to file at ${filePath}:`, error);
       throw error;
     }
+    const location = await this.resolve(filePath);
     return location;
   }
 }
