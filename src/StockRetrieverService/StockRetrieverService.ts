@@ -2,10 +2,20 @@ import { ILoggerService } from "../common/ILoggerService";
 import { stock } from "../common/stock";
 import { IStockRetrieverService } from "./IStockRetrieverService";
 import yahooFinance from 'yahoo-finance2';
+import { ExponentialBackoff, handleAll, retry } from "cockatiel";
 
 export type StockRetrieverServiceArgs = {
     logger: ILoggerService
 };
+
+export type quickQuote ={
+    quoteType: string,
+    symbol: string,
+    tradeable: boolean,
+    postMarketPrice?: number,
+    ask?: number,
+    regularMarketPrice?: number
+}
 
 export default class StockRetrieverService implements IStockRetrieverService {
     private readonly logger: ILoggerService;
@@ -29,6 +39,30 @@ export default class StockRetrieverService implements IStockRetrieverService {
             this.logger.error(`Ticker '${ticker}' not found`);
         }
         return;
+    }
+
+    async GetQuotes(tickers: string[]): Promise<(stock | undefined)[]> {
+        const retryPolicy = retry(handleAll, {maxAttempts: 3, backoff: new ExponentialBackoff()});
+        try{
+            const quotes: quickQuote[] = await retryPolicy.execute(async () => {
+                return yahooFinance.quote(tickers, { fields: ["symbol", "tradeable", "ask", "postMarketPrice", "regularMarketPrice"]}, {validateResult: false});
+            });
+
+            return quotes.map((quote) => {
+                console.log(quote);
+                const price = quote.regularMarketPrice ?? quote.postMarketPrice ?? quote.ask;
+                if (quote.quoteType === "EQUITY" && price){
+                    return {
+                        price,
+                        ticker: quote.symbol
+                    };
+                }
+                return;
+            });
+        } catch {
+            console.error(`Failed for these ${tickers}`);
+            return [undefined];
+        }
     }
 
 };

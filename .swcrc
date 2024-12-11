@@ -1,0 +1,18 @@
+{
+    "jsc": {
+      "parser": {
+        "syntax": "typescript",            // Parse TypeScript files
+        "tsx": true,                       // Enable TSX parsing (for React)
+        "decorators": true,                // Enable decorators (if using)
+        "dynamicImport": true              // Enable dynamic imports (import())
+      },
+      "target": "es2022",                  // Specify ECMAScript version to target (can be es2015, es2017, etc.)
+      "loose": false                       // Enable or disable loose transformations (e.g., loose class fields)
+    },
+    "module": {
+      "type": "es6",                       // Specify the module type (e.g., "commonjs", "es6")
+      "strict": true                        // Enable strict mode for modules
+    },
+    "sourceMaps": true,                    // Generate source maps for debugging
+    "minify": true                       // Minify the output (set to true for production)
+  }

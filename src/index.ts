@@ -6,13 +6,15 @@ import StockRetrieverService from './StockRetrieverService/StockRetrieverService
 async function main() {
   const logger = new ConsoleLoggerService();
   const fileSystemService = new FileSystemService();
-  const finder = new Finder({ fileSystemService });
-  await finder.GetAllStocks();
   const retriever = new StockRetrieverService({logger});
-  const quote = await retriever.GetQuote("aapl");
-  if(quote){
-    logger.info(`${quote.ticker}: ${quote.price}`)
-  }
+
+  const finder = new Finder({ fileSystemService, stockRetrieverService: retriever });
+  await finder.GetAllStocks();
+  // const retriever = new StockRetrieverService({logger});
+  // const quote = await retriever.GetQuote("aapl");
+  // if(quote){
+  //   logger.info(`${quote.ticker}: ${quote.price}`);
+  // }
 }
 
 main();
