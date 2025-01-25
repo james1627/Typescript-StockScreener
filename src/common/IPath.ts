@@ -1,7 +1,7 @@
 export type IPath = {
-    fileName: string,
-    relativePath: string,
-    absolutePath: string,
-    extName?: string,
-    isDirectory: boolean 
-}
+  fileName: string;
+  relativePath: string;
+  absolutePath: string;
+  extName?: string;
+  isDirectory: boolean;
+};

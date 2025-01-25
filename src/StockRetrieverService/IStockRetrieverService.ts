@@ -1,6 +1,6 @@
-import { stock } from "../common/stock";
+import { Stock } from '~/common/Stock';
 
 export interface IStockRetrieverService {
-    GetQuote(ticker: string): Promise<stock | undefined>;
-    GetQuotes(tickers: string[]): Promise<(stock | undefined)[]>;
+  GetQuote(ticker: string): Promise<Stock | undefined>;
+  GetQuotes(tickers: string[]): Promise<(Stock | undefined)[]>;
 }

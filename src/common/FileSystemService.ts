@@ -1,10 +1,9 @@
 import * as fs from 'fs/promises';
 import path from 'path';
-import { IPath } from "./IPath";
-import IFileSystemService from "./IFileSystemService";
+import { IPath } from './IPath';
+import IFileSystemService from './IFileSystemService';
 
 class FileSystemService implements IFileSystemService {
-
   async resolve(filePath: string, root?: string): Promise<IPath> {
     const absolutePath = path.resolve(filePath, root ?? process.cwd()); // Get the absolute path
 
@@ -15,19 +14,28 @@ class FileSystemService implements IFileSystemService {
     const stats = await fs.stat(absolutePath);
 
     return {
-        fileName,
-        relativePath,
-        absolutePath: absolutePath,
-        isDirectory: stats.isDirectory(),
-        extName: fileExtension
+      fileName,
+      relativePath,
+      absolutePath: absolutePath,
+      isDirectory: stats.isDirectory(),
+      extName: fileExtension,
     }; // Adjust based on your `Path` implementation
   }
 
-  async readFile(path: string): Promise<string> {
+  async exists(filePath: string): Promise<boolean> {
     try {
-      return await fs.readFile(path, 'utf-8');
+      await fs.access(filePath);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async readFile(filePath: string): Promise<string> {
+    try {
+      return await fs.readFile(filePath, 'utf-8');
     } catch (error) {
-      console.error(`Failed to read file at ${path}:`, error);
+      console.error(`Failed to read file at ${filePath}:`, error);
       throw error;
     }
   }

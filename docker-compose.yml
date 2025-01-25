@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  db:
+    container_name: container-pg
+    image: postgres
+    restart: always
+    hostname: localhost
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: example
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
