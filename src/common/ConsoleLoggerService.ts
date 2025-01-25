@@ -1,10 +1,7 @@
-import { tr } from 'indicatorts';
-import { ILoggerService } from './ILoggerService';
-
-type logLevel = 'INFO' | 'WARN' | 'ERROR' | 'NONE';
+import { ILoggerService, LogLevel } from './ILoggerService';
 
 export type ConsoleLoggerServiceProps = {
-  logLevel?: logLevel;
+  logLevel?: LogLevel;
 };
 
 export class ConsoleLoggerService implements ILoggerService {

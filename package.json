@@ -20,6 +20,7 @@
     "prettier": "^3.4.2",
     "prettier-eslint": "^16.3.0",
     "rimraf": "^6.0.1",
+    "shebang-loader": "^0.0.1",
     "swc-loader": "^0.2.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
@@ -30,6 +31,7 @@
   "dependencies": {
     "axios": "^1.7.7",
     "cockatiel": "^3.2.1",
+    "commander": "^13.1.0",
     "indicatorts": "^2.2.1",
     "p-limit": "^6.1.0",
     "pandas-js": "^0.2.4",
@@ -41,7 +43,7 @@
     "clean": "rm -rf node_modules/",
     "prebuild": "rimraf dist",
     "build": "webpack",
-    "start": "node dist/bundle.cjs",
+    "cli": "node dist/cli.cjs",
     "to": "yarn build && yarn start"
   },
   "volta": {

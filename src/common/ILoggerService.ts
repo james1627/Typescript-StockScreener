@@ -1,3 +1,5 @@
+export type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'NONE';
+
 export interface ILoggerService {
   log(message: string): void;
   warn(message: string): void;

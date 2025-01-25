@@ -1,9 +1,11 @@
 import { ILoggerService } from '~/common/ILoggerService';
 import { Stock } from '~/common/Stock';
-import { IStockRetrieverService } from './IStockRetrieverService';
+import IStockRetrieverService from './IStockRetrieverService';
 import yahooFinance from 'yahoo-finance2';
 import { ExponentialBackoff, handleAll, retry } from 'cockatiel';
 import pLimit from 'p-limit';
+
+yahooFinance.suppressNotices(['yahooSurvey']);
 
 export type StockRetrieverServiceArgs = {
   logger: ILoggerService;
@@ -16,6 +18,9 @@ export type quickQuote = {
   postMarketPrice?: number;
   ask?: number;
   regularMarketPrice?: number;
+  epsCurrentYear?: number;
+  beta?: number;
+  forwardPE?: number;
 };
 
 export default class StockRetrieverService implements IStockRetrieverService {
@@ -37,6 +42,9 @@ export default class StockRetrieverService implements IStockRetrieverService {
       return {
         ticker,
         price,
+        eps: quote.epsCurrentYear,
+        pe: quote.forwardPE,
+        beta: quote.beta,
       };
     } catch {
       this.logger.error(`Ticker '${ticker}' not found`);
@@ -50,6 +58,8 @@ export default class StockRetrieverService implements IStockRetrieverService {
       backoff: new ExponentialBackoff(),
     });
     try {
+      // const t = await yahooFinance.quote(["t"]);
+      // t[0].
       const quotes: quickQuote[] = await StockRetrieverService.limit(async () =>
         retryPolicy.execute(async () => {
           return yahooFinance.quote(
@@ -61,6 +71,9 @@ export default class StockRetrieverService implements IStockRetrieverService {
                 'ask',
                 'postMarketPrice',
                 'regularMarketPrice',
+                'epsCurrentYear',
+                'forwardPE',
+                'beta',
               ],
             },
             { validateResult: false },
@@ -74,6 +87,9 @@ export default class StockRetrieverService implements IStockRetrieverService {
         if (quote.quoteType === 'EQUITY' && price) {
           return {
             price,
+            eps: quote.epsCurrentYear,
+            pe: quote.forwardPE,
+            beta: quote.beta,
             ticker: quote.symbol,
           };
         }

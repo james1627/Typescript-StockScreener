@@ -25,8 +25,10 @@ export default class StockFileRepository implements IStockRepository {
 
     let stocksToStore: Stock[] = stocks;
     if (storedStocksString) {
-      const storedStocks = JSON.parse(storedStocksString);
-      stocksToStore = stocksToStore.concat(storedStocks);
+      const storedStocks: Stock[] = JSON.parse(storedStocksString);
+      stocksToStore = storedStocks.filter(
+        (s) => !stocks.some((s2) => s2.ticker === s.ticker),
+      );
     }
 
     stocksToStore = stocksToStore.filter(

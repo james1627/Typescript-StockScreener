@@ -3,6 +3,7 @@ import Finder from './Finder/Finder';
 import { ConsoleLoggerService } from './common/ConsoleLoggerService';
 import StockRetrieverService from './StockRetrieverService/StockRetrieverService';
 import StockFileRepository from './Repository/StockFileRepository';
+import StockFilterService from './StockFilterService/StockFilterService';
 
 async function main() {
   const logger = new ConsoleLoggerService({ logLevel: 'INFO' });
@@ -16,12 +17,11 @@ async function main() {
   // const stocks = await finder.GetCominationStocks(3);
 
   const storedStocks = await repository.getStoredStocks();
-  storedStocks.forEach((s) => logger.info(`${s.ticker}: ${s.price}`));
-  // const retriever = new StockRetrieverService({logger});
-  // const quote = await retriever.GetQuote("aapl");
-  // if(quote){
-  //   logger.info(`${quote.ticker}: ${quote.price}`);
-  // }
+
+  const filterService = new StockFilterService({ filters: { priceMax: 12 } });
+  const filteredStocks = filterService.FilterStocks(storedStocks);
+  filteredStocks.forEach((s) => logger.info(`${s.ticker}: ${s.price}`));
+  logger.info(`${filteredStocks.length}`);
 }
 
 main();
