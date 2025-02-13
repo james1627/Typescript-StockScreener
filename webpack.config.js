@@ -5,10 +5,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const getModuleExports = () => ({
   mode: 'development',
-  entry: './src/cli.ts', // Entry file of your app
+  entry: './src/app.ts', // Entry file of your app
   target: 'node', // Specify Node.js as the target environment
   output: {
-    filename: 'cli.cjs', // Output bundle name
+    filename: 'app.cjs', // Output bundle name
     path: path.resolve(__dirname, 'dist'), // Output folder
     clean: true,
   },

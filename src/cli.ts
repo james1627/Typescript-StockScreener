@@ -19,8 +19,12 @@ async function getServices(options: GlobalOptions): Promise<services> {
   return { logger };
 }
 
-function readNumber(num: string) {
-  return num ? parseFloat(num) : undefined;
+function readNumber(num: string): number {
+  const parsedFloat = parseFloat(num);
+  if (isNaN(parsedFloat)) {
+    throw new Error(`Invalid number: ${num}`);
+  }
+  return parsedFloat;
 }
 
 const program = new Command();
