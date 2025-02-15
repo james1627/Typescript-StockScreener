@@ -5,6 +5,8 @@ import Filter from './Commands/Filter';
 import Screener from './GetScreener';
 import FileSystemService from './Common/FileSystemService';
 import Load from './Commands/load';
+import IDatabaseProvider from './Common/Database/IDatabaseProvider';
+import { PostgresProvider } from './Common/Database/PostgresProvider';
 
 function getRequiredArgument(value: unknown, name: string): string {
   if (typeof value !== 'string') {
@@ -21,10 +23,17 @@ const logger = new ConsoleLoggerService({
 });
 const fileSystemService = new FileSystemService();
 
+let databaseProvider = undefined;
+if (config.databaseConnectionString) {
+  databaseProvider = new PostgresProvider(config.databaseConnectionString);
+  await databaseProvider.connect();
+}
+
 const screener = Screener.GetScreener(
   logger,
   fileSystemService,
   config.basePath,
+  databaseProvider,
 );
 
 const port = config.port;

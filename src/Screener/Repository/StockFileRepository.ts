@@ -58,7 +58,7 @@ export default class StockFileRepository implements IStockRepository {
   }
 
   async getStoredStocks(): Promise<Stock[]> {
-    const locationToStore = `${this.fileDirectory}${StockFileRepository.fileToStore}`;
+    const locationToStore = `${this.fileDirectory}/${StockFileRepository.fileToStore}`;
 
     let storedStocksString = '';
     if (await this.fileSystemService.exists(locationToStore)) {

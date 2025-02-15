@@ -14,7 +14,7 @@ export default class ScreenerConfig {
   constructor() {
     dotenv.config({ path: `${this.basePath}/.env` });
 
-    this.databaseConnectionString = process.env.DatabaseConnectionString;
+    this.databaseConnectionString = process.env.DATABASE_URL;
 
     this.port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
