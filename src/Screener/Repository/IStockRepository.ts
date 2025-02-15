@@ -1,4 +1,4 @@
-import { Stock } from '~/common/Stock';
+import { Stock } from '~/Common/Stock';
 
 export interface IStockRepository {
   storeStocks(stocks: Stock[]): Promise<Stock[]>;

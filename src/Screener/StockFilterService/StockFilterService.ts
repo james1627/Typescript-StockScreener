@@ -1,4 +1,4 @@
-import { Stock } from '~/common/Stock';
+import { Stock } from '~/Common/Stock';
 import IStockFilterService, { filterOptions } from './IStockFilterService';
 
 export default class StockFilterService implements IStockFilterService {

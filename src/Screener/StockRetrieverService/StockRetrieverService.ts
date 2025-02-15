@@ -1,5 +1,5 @@
-import { ILoggerService } from '~/common/ILoggerService';
-import { Stock } from '~/common/Stock';
+import { ILoggerService } from '~/Common/ILoggerService';
+import { Stock } from '~/Common/Stock';
 import IStockRetrieverService from './IStockRetrieverService';
 import yahooFinance from 'yahoo-finance2';
 import { ExponentialBackoff, handleAll, retry } from 'cockatiel';

@@ -1,14 +1,10 @@
 import express, { Request, Response } from 'express';
-import { ConsoleLoggerService } from './common/ConsoleLoggerService';
-import load from './Commands/load';
-import filter from './Commands/Filter';
-
-const app = express();
-const port = 3000;
-
-const logger = new ConsoleLoggerService({ logLevel: 'INFO' });
-
-app.use(express.json());
+import { ConsoleLoggerService } from './Common/ConsoleLoggerService';
+import ScreenerConfig from './ScreenerConfig';
+import Filter from './Commands/Filter';
+import Screener from './GetScreener';
+import FileSystemService from './Common/FileSystemService';
+import Load from './Commands/load';
 
 function getRequiredArgument(value: unknown, name: string): string {
   if (typeof value !== 'string') {
@@ -17,16 +13,39 @@ function getRequiredArgument(value: unknown, name: string): string {
   return value;
 }
 
+const app = express();
+
+const config = new ScreenerConfig();
+const logger = new ConsoleLoggerService({
+  logLevel: config.logLevel ?? 'INFO',
+});
+const fileSystemService = new FileSystemService();
+
+const screener = Screener.GetScreener(
+  logger,
+  fileSystemService,
+  config.basePath,
+);
+
+const port = config.port;
+
+app.use(express.json());
+
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello, TypeScript Express!');
 });
 
 app.post('/api/loadstocks', async (req: Request, res: Response) => {
-  const combinations = parseInt(
-    getRequiredArgument(req.query.number, 'combinations'),
-  );
+  const combinations =
+    parseInt(getRequiredArgument(req.query.combinations, 'combinations')) ?? 3;
 
-  await load({ logger, combinations });
+  const loader = new Load({
+    logger,
+    stockRepository: screener.repository,
+    finder: screener.finder,
+  });
+  loader.runTask(combinations);
+
   res.sendStatus(200);
 });
 
@@ -40,10 +59,17 @@ app.get('/api/filter', async (req: Request, res: Response) => {
     return;
   }
 
-  const stocks = await filter({
+  const filterTask = new Filter({
     logger,
-    filters: { priceMax, priceMin, betaMin: 0, betaMax: 2 },
+    stockrepository: screener.repository,
   });
+  const stocks = await filterTask.runTask({
+    priceMax,
+    priceMin,
+    betaMin: 0,
+    betaMax: 2,
+  });
+
   res.json(stocks);
 });
 

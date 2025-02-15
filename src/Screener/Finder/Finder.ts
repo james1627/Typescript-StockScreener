@@ -1,11 +1,28 @@
-import { Stock } from '~/common/Stock';
-import { processInBatchesAsync } from '../common/utils';
-import { IStockRetrieverService } from '../StockRetrieverService/IStockRetrieverService';
+import { Stock } from '~/Common/Stock';
+import IStockRetrieverService from '../StockRetrieverService/IStockRetrieverService';
 import { IFinder } from './IFinder';
+import pLimit from 'p-limit';
 
 type FinderArgs = {
   stockRetrieverService: IStockRetrieverService;
 };
+
+async function processInBatchesAsync<T, R>(
+  items: T[],
+  batchSize: number,
+  callback: (batch: T[]) => Promise<R>,
+  concurrency: number = 5,
+): Promise<R[]> {
+  const limit = pLimit(concurrency);
+  const batches = Array.from(
+    { length: Math.ceil(items.length / batchSize) },
+    (_, i) => items.slice(i * batchSize, i * batchSize + batchSize),
+  );
+
+  const promises = batches.map((batch) => limit(() => callback(batch)));
+
+  return Promise.all(promises);
+}
 
 const getCombinations = (length: number): string[] => {
   const chars = 'abcdefghijklmnopqrstuvwxyz';

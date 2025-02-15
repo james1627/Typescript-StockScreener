@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { fileURLToPath } from 'url';
-
+import CopyPlugin from 'copy-webpack-plugin';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const getModuleExports = () => ({
@@ -27,6 +27,16 @@ const getModuleExports = () => ({
       },
     ],
   },
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, 'src', '.env'),
+          to: path.resolve(__dirname, 'dist'),
+        },
+      ],
+    }),
+  ],
 });
 
 export default getModuleExports;

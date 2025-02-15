@@ -1,4 +1,4 @@
-import { Stock } from '~/common/Stock';
+import { Stock } from '~/Common/Stock';
 
 export type filterOptions = {
   priceMin?: number;

@@ -2,5 +2,5 @@
 .pnp.*
 node_modules
 dist
-
+**/.env
 *.txt

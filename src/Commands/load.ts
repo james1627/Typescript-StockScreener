@@ -1,28 +1,29 @@
-import FileSystemService from '../common/FileSystemService';
-import { ILoggerService } from '../common/ILoggerService';
-import Finder from '../Finder/Finder';
-import StockFileRepository from '../Repository/StockFileRepository';
-import StockRetrieverService from '../StockRetrieverService/StockRetrieverService';
+import { ILoggerService } from '~/Common/ILoggerService';
+import { IStockRepository } from '../Screener/Repository/IStockRepository';
+import { IFinder } from '../Screener/Finder/IFinder';
 
 type LoadArgs = {
   logger: ILoggerService;
-  combinations: number;
+  stockRepository: IStockRepository;
+  finder: IFinder;
 };
 
-export default async function load({
-  logger,
-  combinations,
-}: LoadArgs): Promise<void> {
-  const fileSystemService = new FileSystemService();
-  const repository = new StockFileRepository({ fileSystemService });
-  const retriever = new StockRetrieverService({ logger });
-  const finder = new Finder({
-    stockRetrieverService: retriever,
-  });
+export default class Load {
+  private readonly logger: ILoggerService;
+  private readonly stockRepository: IStockRepository;
+  private readonly finder: IFinder;
 
-  const stocks = await finder.GetCominationStocks(combinations);
-  const storedStocks = await repository.storeStocks(stocks);
+  constructor({ logger, stockRepository, finder }: LoadArgs) {
+    this.logger = logger;
+    this.stockRepository = stockRepository;
+    this.finder = finder;
+  }
 
-  logger.log(`Stored ${stocks.length} total stocks.`);
-  logger.log(`There are now ${storedStocks.length} stocks stored.`);
+  async runTask(combinations: number): Promise<void> {
+    const stocks = await this.finder.GetCominationStocks(combinations);
+    const storedStocks = await this.stockRepository.storeStocks(stocks);
+
+    this.logger.log(`Stored ${stocks.length} total stocks.`);
+    this.logger.log(`There are now ${storedStocks.length} stocks stored.`);
+  }
 }

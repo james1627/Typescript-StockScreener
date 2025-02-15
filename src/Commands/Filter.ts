@@ -1,29 +1,32 @@
-import { filterOptions } from '~/StockFilterService/IStockFilterService';
-import FileSystemService from '../common/FileSystemService';
-import { ILoggerService } from '../common/ILoggerService';
-import StockFileRepository from '../Repository/StockFileRepository';
-import StockFilterService from '../StockFilterService/StockFilterService';
-import { Stock } from '~/common/Stock';
+import { filterOptions } from '../Screener/StockFilterService/IStockFilterService';
+import { ILoggerService } from '~/Common/ILoggerService';
+import StockFilterService from '../Screener/StockFilterService/StockFilterService';
+import { IStockRepository } from '../Screener/Repository/IStockRepository';
 
 type FilterArgs = {
   logger: ILoggerService;
-  filters: filterOptions;
+  stockrepository: IStockRepository;
 };
 
-export default async function filter({
-  logger,
-  filters,
-}: FilterArgs): Promise<Stock[]> {
-  const fileSystemService = new FileSystemService();
-  const repository = new StockFileRepository({ fileSystemService });
-  const stocks = await repository.getStoredStocks();
+export default class Filter {
+  private readonly logger: ILoggerService;
+  private readonly stockrepository: IStockRepository;
 
-  const filterService = new StockFilterService({
-    filters,
-  });
-  const filteredStocks = filterService.FilterStocks(stocks);
+  constructor({ logger, stockrepository }: FilterArgs) {
+    this.logger = logger;
+    this.stockrepository = stockrepository;
+  }
 
-  logger.log(`Result: ${filteredStocks.length}`);
-  logger.log(`Stocks: ${filteredStocks.map(({ ticker }) => ticker)}`);
-  return filteredStocks;
+  async runTask(filters: filterOptions) {
+    const stocks = await this.stockrepository.getStoredStocks();
+
+    const filterService = new StockFilterService({
+      filters,
+    });
+    const filteredStocks = filterService.FilterStocks(stocks);
+
+    this.logger.log(`Result: ${filteredStocks.length}`);
+    this.logger.log(`Stocks: ${filteredStocks.map(({ ticker }) => ticker)}`);
+    return filteredStocks;
+  }
 }
