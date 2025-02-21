@@ -11,17 +11,89 @@ export type StockRetrieverServiceArgs = {
   logger: ILoggerService;
 };
 
-export type quickQuote = {
+export type QuickQuote = {
   quoteType: string;
   symbol: string;
-  tradeable: boolean;
   postMarketPrice?: number;
   ask?: number;
   regularMarketPrice?: number;
   epsCurrentYear?: number;
   beta?: number;
   forwardPE?: number;
+  displayName?: string;
+  exchange: string;
+  priceToBook?: number;
+  regularMarketVolume?: number;
+  averageDailyVolume3Month?: number;
+  regularMarketDayLow?: number;
+  regularMarketDayHigh?: number;
+  regularMarketOpen?: number;
+  fiftyTwoWeekHigh?: number;
+  fiftyTwoWeekLow?: number;
+  fiftyDayAverage?: number;
+  fiftyDayAverageChangePercent?: number;
+  twoHundredDayAverage?: number;
+  marketCap?: number;
+  trailingAnnualDividendRate?: number;
+  trailingAnnualDividendYield?: number;
+  averageAnalystRating?: string;
 };
+
+const quickQuoteKeys = Array<keyof QuickQuote>(
+  'quoteType',
+  'symbol',
+  'postMarketPrice',
+  'ask',
+  'regularMarketPrice',
+  'epsCurrentYear',
+  'beta',
+  'forwardPE',
+  'displayName',
+  'exchange',
+  'priceToBook',
+  'regularMarketVolume',
+  'averageDailyVolume3Month',
+  'regularMarketDayLow',
+  'regularMarketDayHigh',
+  'regularMarketOpen',
+  'fiftyTwoWeekHigh',
+  'fiftyTwoWeekLow',
+  'fiftyDayAverage',
+  'fiftyDayAverageChangePercent',
+  'twoHundredDayAverage',
+  'marketCap',
+  'trailingAnnualDividendRate',
+  'trailingAnnualDividendYield',
+  'averageAnalystRating',
+);
+
+function mapQuickToStock(quote: QuickQuote): Stock {
+  return {
+    ticker: quote.symbol,
+    type: quote.quoteType,
+    price: quote.regularMarketPrice ?? quote.postMarketPrice ?? quote.ask ?? 0,
+    eps: quote.epsCurrentYear,
+    pe: quote.forwardPE,
+    beta: quote.beta,
+    name: quote.displayName ?? 'No Name',
+    exchange: quote.exchange,
+    ptb: quote.priceToBook,
+    volume: quote.regularMarketVolume,
+    avgVolume: quote.averageDailyVolume3Month,
+    lowPrice: quote.regularMarketDayLow,
+    highPrice: quote.regularMarketDayHigh,
+    openPrice: quote.regularMarketOpen,
+    f2weekHigh: quote.fiftyTwoWeekHigh,
+    f2weekLow: quote.fiftyTwoWeekLow,
+    fDayAvg: quote.fiftyDayAverage,
+    fDayAvgChange: quote.fiftyDayAverageChangePercent,
+    tooDayAvg: quote.twoHundredDayAverage,
+    marketCap: quote.marketCap,
+    divRate: quote.trailingAnnualDividendRate,
+    divYield: quote.trailingAnnualDividendYield,
+    rating: parseInt(quote.averageAnalystRating!) ?? undefined,
+  };
+}
 
 export default class StockRetrieverService implements IStockRetrieverService {
   private static readonly limit = pLimit(10);
@@ -33,19 +105,13 @@ export default class StockRetrieverService implements IStockRetrieverService {
 
   async GetQuote(ticker: string): Promise<Stock | undefined> {
     try {
-      const quote = await yahooFinance.quote(ticker);
-      const price =
-        quote.regularMarketPrice ?? quote.postMarketPrice ?? quote.ask;
-      if (!price) {
+      console.log(quickQuoteKeys);
+      const quote: QuickQuote = await yahooFinance.quote(ticker);
+      const stock = mapQuickToStock(quote);
+      if (stock.price === 0) {
         throw Error(`No Price Found for '${ticker}'`);
       }
-      return {
-        ticker,
-        price,
-        eps: quote.epsCurrentYear,
-        pe: quote.forwardPE,
-        beta: quote.beta,
-      };
+      return stock;
     } catch {
       this.logger.error(`Ticker '${ticker}' not found`);
     }
@@ -57,24 +123,14 @@ export default class StockRetrieverService implements IStockRetrieverService {
       maxAttempts: 3,
       backoff: new ExponentialBackoff(),
     });
+
     try {
-      // const t = await yahooFinance.quote(["t"]);
-      // t[0].
-      const quotes: quickQuote[] = await StockRetrieverService.limit(async () =>
+      const quotes: QuickQuote[] = await StockRetrieverService.limit(async () =>
         retryPolicy.execute(async () => {
           return yahooFinance.quote(
             tickers,
             {
-              fields: [
-                'symbol',
-                'tradeable',
-                'ask',
-                'postMarketPrice',
-                'regularMarketPrice',
-                'epsCurrentYear',
-                'forwardPE',
-                'beta',
-              ],
+              fields: quickQuoteKeys,
             },
             { validateResult: false },
           );
@@ -82,16 +138,9 @@ export default class StockRetrieverService implements IStockRetrieverService {
       );
 
       return quotes.map((quote) => {
-        const price =
-          quote.regularMarketPrice ?? quote.postMarketPrice ?? quote.ask;
-        if (quote.quoteType === 'EQUITY' && price) {
-          return {
-            price,
-            eps: quote.epsCurrentYear,
-            pe: quote.forwardPE,
-            beta: quote.beta,
-            ticker: quote.symbol,
-          };
+        const stock = mapQuickToStock(quote);
+        if (stock.price !== 0) {
+          return stock;
         }
         return;
       });

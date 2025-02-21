@@ -20,6 +20,8 @@ export default class Filter {
   async runTask(filters: filterOptions) {
     const stocks = await this.stockrepository.getStoredStocks();
 
+    this.logger.log(`got ${stocks.length} stocks from the repository`);
+
     const filterService = new StockFilterService({
       filters,
     });

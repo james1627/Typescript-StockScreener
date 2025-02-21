@@ -5,8 +5,8 @@ import Filter from './Commands/Filter';
 import Screener from './GetScreener';
 import FileSystemService from './Common/FileSystemService';
 import Load from './Commands/load';
-import IDatabaseProvider from './Common/Database/IDatabaseProvider';
 import { PostgresProvider } from './Common/Database/PostgresProvider';
+import yahooFinance from 'yahoo-finance2';
 
 function getRequiredArgument(value: unknown, name: string): string {
   if (typeof value !== 'string') {
@@ -56,6 +56,23 @@ app.post('/api/loadstocks', async (req: Request, res: Response) => {
   loader.runTask(combinations);
 
   res.sendStatus(200);
+});
+
+app.get('/api/quote', async (req: Request, res: Response) => {
+  let ticker: string;
+  try {
+    ticker = getRequiredArgument(req.query.ticker, 'ticker');
+  } catch {
+    res.sendStatus(400);
+    return;
+  }
+  let quote;
+  if (req.query.q) {
+    quote = await screener.retriever.GetQuote(ticker);
+  } else {
+    quote = await yahooFinance.quote(ticker);
+  }
+  res.json(quote);
 });
 
 app.get('/api/filter', async (req: Request, res: Response) => {
