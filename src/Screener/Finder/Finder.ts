@@ -25,9 +25,9 @@ const getNextThirdFriday = (): Date => {
   let year = now.getFullYear();
 
   while (true) {
-    const firstDayOfNextMonth = new Date(year, month + 1, 1);
+    const firstDayOfMonth = new Date(year, month, 1);
 
-    const firstFriday = new Date(firstDayOfNextMonth);
+    const firstFriday = new Date(firstDayOfMonth);
     firstFriday.setDate(
       firstFriday.getDate() + ((5 - firstFriday.getDay() + 7) % 7),
     );
@@ -123,11 +123,16 @@ export default class Finder implements IFinder {
 
     const validOptions = options.flat().filter((t) => !!t);
 
-    return validStocks.map((stock) => ({
-      optionable: validOptions.some((option) =>
+    return validStocks.map((stock) => {
+      const option = validOptions.find((option) =>
         option.ticker.includes(stock.ticker),
-      ),
-      ...stock,
-    }));
+      );
+
+      return {
+        optionable: option ? true : false,
+        ops: option ? option.price / stock.price : 0,
+        ...stock,
+      };
+    });
   }
 }
