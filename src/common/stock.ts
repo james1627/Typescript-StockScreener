@@ -26,4 +26,5 @@ export type Stock = BasicStock & {
   fDayAvgChange?: number;
   tooDayAvg?: number;
   rating?: number;
+  optionable?: boolean;
 };

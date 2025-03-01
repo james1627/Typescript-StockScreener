@@ -40,7 +40,7 @@ const port = config.port;
 
 app.use(express.json());
 
-app.get('/', (req: Request, res: Response) => {
+app.get('/', (res: Response) => {
   res.send('Hello, TypeScript Express!');
 });
 
@@ -66,12 +66,27 @@ app.get('/api/quote', async (req: Request, res: Response) => {
     res.sendStatus(400);
     return;
   }
+
   let quote;
   if (req.query.q) {
     quote = await screener.retriever.GetQuote(ticker);
   } else {
-    quote = await yahooFinance.quote(ticker);
+    quote = await yahooFinance.quote(
+      ticker,
+      {
+        fields: [
+          'symbol',
+          'shortName',
+          'regularMarketPrice',
+          'bid',
+          'ask',
+          'regularMarketVolume',
+        ],
+      },
+      { validateResult: false },
+    );
   }
+
   res.json(quote);
 });
 

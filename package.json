@@ -40,6 +40,7 @@
     "p-limit": "^6.1.0",
     "pandas-js": "^0.2.4",
     "pg": "^8.13.0",
+    "pg-native": "^3.2.2",
     "yahoo-finance2": "^2.12.4"
   },
   "scripts": {
