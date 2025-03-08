@@ -1,26 +1,21 @@
 import { ILoggerService } from '~/Common/ILoggerService';
 import { Stock } from '~/Common/Stock';
+import { Option } from '~/Common/Option';
 import IStockRetrieverService from './IStockRetrieverService';
 import yahooFinance from 'yahoo-finance2';
 import { ExponentialBackoff, handleAll, retry } from 'cockatiel';
 import pLimit from 'p-limit';
+import { mapQuickToStock, QuickQuote, quickQuoteKeys } from './QuickQuote';
+import {
+  mapQuickToOption,
+  quickOptionQuoteKeys,
+  QuickOptionQuote,
+} from './QuickOptionQuote';
 
 yahooFinance.suppressNotices(['yahooSurvey']);
 
 export type StockRetrieverServiceArgs = {
   logger: ILoggerService;
-};
-
-export type quickQuote = {
-  quoteType: string;
-  symbol: string;
-  tradeable: boolean;
-  postMarketPrice?: number;
-  ask?: number;
-  regularMarketPrice?: number;
-  epsCurrentYear?: number;
-  beta?: number;
-  forwardPE?: number;
 };
 
 export default class StockRetrieverService implements IStockRetrieverService {
@@ -33,19 +28,12 @@ export default class StockRetrieverService implements IStockRetrieverService {
 
   async GetQuote(ticker: string): Promise<Stock | undefined> {
     try {
-      const quote = await yahooFinance.quote(ticker);
-      const price =
-        quote.regularMarketPrice ?? quote.postMarketPrice ?? quote.ask;
-      if (!price) {
+      const quote: QuickQuote = await yahooFinance.quote(ticker);
+      const stock = mapQuickToStock(quote);
+      if (stock.price === 0) {
         throw Error(`No Price Found for '${ticker}'`);
       }
-      return {
-        ticker,
-        price,
-        eps: quote.epsCurrentYear,
-        pe: quote.forwardPE,
-        beta: quote.beta,
-      };
+      return stock;
     } catch {
       this.logger.error(`Ticker '${ticker}' not found`);
     }
@@ -57,24 +45,14 @@ export default class StockRetrieverService implements IStockRetrieverService {
       maxAttempts: 3,
       backoff: new ExponentialBackoff(),
     });
+
     try {
-      // const t = await yahooFinance.quote(["t"]);
-      // t[0].
-      const quotes: quickQuote[] = await StockRetrieverService.limit(async () =>
+      const quotes: QuickQuote[] = await StockRetrieverService.limit(async () =>
         retryPolicy.execute(async () => {
           return yahooFinance.quote(
             tickers,
             {
-              fields: [
-                'symbol',
-                'tradeable',
-                'ask',
-                'postMarketPrice',
-                'regularMarketPrice',
-                'epsCurrentYear',
-                'forwardPE',
-                'beta',
-              ],
+              fields: quickQuoteKeys,
             },
             { validateResult: false },
           );
@@ -82,16 +60,42 @@ export default class StockRetrieverService implements IStockRetrieverService {
       );
 
       return quotes.map((quote) => {
-        const price =
-          quote.regularMarketPrice ?? quote.postMarketPrice ?? quote.ask;
-        if (quote.quoteType === 'EQUITY' && price) {
-          return {
-            price,
-            eps: quote.epsCurrentYear,
-            pe: quote.forwardPE,
-            beta: quote.beta,
-            ticker: quote.symbol,
-          };
+        const stock = mapQuickToStock(quote);
+        if (stock.price !== 0) {
+          return stock;
+        }
+        return;
+      });
+    } catch {
+      console.error(`Failed for these ${tickers}`);
+      return [undefined];
+    }
+  }
+
+  async GetOptionQuotes(tickers: string[]): Promise<(Option | undefined)[]> {
+    const retryPolicy = retry(handleAll, {
+      maxAttempts: 3,
+      backoff: new ExponentialBackoff(),
+    });
+
+    try {
+      const quotes: QuickOptionQuote[] = await StockRetrieverService.limit(
+        async () =>
+          retryPolicy.execute(async () => {
+            return yahooFinance.quote(
+              tickers,
+              {
+                fields: quickOptionQuoteKeys,
+              },
+              { validateResult: false },
+            );
+          }),
+      );
+
+      return quotes.map((quote) => {
+        const stock = mapQuickToOption(quote);
+        if (stock.price !== 0) {
+          return stock;
         }
         return;
       });

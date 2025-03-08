@@ -5,8 +5,9 @@ import Filter from './Commands/Filter';
 import Screener from './GetScreener';
 import FileSystemService from './Common/FileSystemService';
 import Load from './Commands/load';
-import IDatabaseProvider from './Common/Database/IDatabaseProvider';
 import { PostgresProvider } from './Common/Database/PostgresProvider';
+import yahooFinance from 'yahoo-finance2';
+import { filterOptions } from './Screener/StockFilterService/IStockFilterService';
 
 function getRequiredArgument(value: unknown, name: string): string {
   if (typeof value !== 'string') {
@@ -40,7 +41,7 @@ const port = config.port;
 
 app.use(express.json());
 
-app.get('/', (req: Request, res: Response) => {
+app.get('/', (res: Response) => {
   res.send('Hello, TypeScript Express!');
 });
 
@@ -58,11 +59,42 @@ app.post('/api/loadstocks', async (req: Request, res: Response) => {
   res.sendStatus(200);
 });
 
-app.get('/api/filter', async (req: Request, res: Response) => {
-  let priceMax, priceMin;
+app.get('/api/quote', async (req: Request, res: Response) => {
+  let ticker: string;
   try {
-    priceMax = parseInt(getRequiredArgument(req.query.priceMax, 'priceMax'));
-    priceMin = parseInt(getRequiredArgument(req.query.priceMin, 'priceMin'));
+    ticker = getRequiredArgument(req.query.ticker, 'ticker');
+  } catch {
+    res.sendStatus(400);
+    return;
+  }
+
+  let quote;
+  if (req.query.q) {
+    quote = await screener.retriever.GetQuote(ticker);
+  } else {
+    quote = await yahooFinance.quote(
+      ticker,
+      {
+        fields: [
+          'symbol',
+          'shortName',
+          'regularMarketPrice',
+          'bid',
+          'ask',
+          'regularMarketVolume',
+        ],
+      },
+      { validateResult: false },
+    );
+  }
+
+  res.json(quote);
+});
+
+app.get('/api/filter', async (req: Request, res: Response) => {
+  let filters: filterOptions;
+  try {
+    filters = req.query;
   } catch {
     res.sendStatus(400);
     return;
@@ -72,12 +104,7 @@ app.get('/api/filter', async (req: Request, res: Response) => {
     logger,
     stockrepository: screener.repository,
   });
-  const stocks = await filterTask.runTask({
-    priceMax,
-    priceMin,
-    betaMin: 0,
-    betaMax: 2,
-  });
+  const stocks = await filterTask.runTask(filters);
 
   res.json(stocks);
 });
