@@ -17,6 +17,8 @@ export type filterOptions = {
   avgVolumeMin?: number;
   oPSMax?: number;
   oPSMin?: number;
+  ratingMax?: number;
+  ratingMin?: number;
   hasDiv?: boolean;
   optionable?: boolean;
 };

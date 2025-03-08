@@ -1,5 +1,5 @@
 # enhancements
 
-- add support for options
 - fix database for stocks
-- add better filter supports
+- add sorting for filter results
+- add react ui for frontend

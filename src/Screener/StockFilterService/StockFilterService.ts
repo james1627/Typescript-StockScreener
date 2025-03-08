@@ -51,6 +51,11 @@ export default class StockFilterService implements IStockFilterService {
           this.filters.oPSMin,
           this.filters.oPSMax,
         ) &&
+        StockFilterService.filterNumber(
+          s.rating,
+          this.filters.ratingMin,
+          this.filters.ratingMax,
+        ) &&
         StockFilterService.filterBool(s.optionable, this.filters.optionable) &&
         StockFilterService.filterBool(
           s.divYield ? s.divYield > 0 : false,
