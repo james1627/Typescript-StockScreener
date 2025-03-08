@@ -112,7 +112,7 @@ export default class Finder implements IFinder {
 
     const optionTickers = validStocks.map(
       (stock) =>
-        `${stock.ticker}${optionDateString}C${Math.round(stock.price).toString().padStart(5, '0')}000`,
+        `${stock.ticker}${optionDateString}C${Math.ceil(stock.price).toString().padStart(5, '0')}000`,
     );
 
     const options = await this.processInBatchesAsync(
@@ -130,7 +130,9 @@ export default class Finder implements IFinder {
 
       return {
         optionable: option ? true : false,
-        ops: option ? option.price / stock.price : 0,
+        ops: option
+          ? (option.price + Math.ceil(stock.price) - stock.price) / stock.price
+          : 0,
         ...stock,
       };
     });

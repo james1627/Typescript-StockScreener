@@ -7,6 +7,7 @@ import FileSystemService from './Common/FileSystemService';
 import Load from './Commands/load';
 import { PostgresProvider } from './Common/Database/PostgresProvider';
 import yahooFinance from 'yahoo-finance2';
+import { filterOptions } from './Screener/StockFilterService/IStockFilterService';
 
 function getRequiredArgument(value: unknown, name: string): string {
   if (typeof value !== 'string') {
@@ -91,10 +92,9 @@ app.get('/api/quote', async (req: Request, res: Response) => {
 });
 
 app.get('/api/filter', async (req: Request, res: Response) => {
-  let priceMax, priceMin;
+  let filters: filterOptions;
   try {
-    priceMax = parseInt(getRequiredArgument(req.query.priceMax, 'priceMax'));
-    priceMin = parseInt(getRequiredArgument(req.query.priceMin, 'priceMin'));
+    filters = req.query;
   } catch {
     res.sendStatus(400);
     return;
@@ -104,12 +104,7 @@ app.get('/api/filter', async (req: Request, res: Response) => {
     logger,
     stockrepository: screener.repository,
   });
-  const stocks = await filterTask.runTask({
-    priceMax,
-    priceMin,
-    betaMin: 0,
-    betaMax: 2,
-  });
+  const stocks = await filterTask.runTask(filters);
 
   res.json(stocks);
 });
