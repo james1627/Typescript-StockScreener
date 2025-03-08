@@ -1,0 +1,1 @@
+-- upsert for stocks table in pg
