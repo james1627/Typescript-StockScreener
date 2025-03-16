@@ -1,3 +1,4 @@
+import React from 'react';
 import express, { Request, Response } from 'express';
 import { ConsoleLoggerService } from './Common/ConsoleLoggerService';
 import ScreenerConfig from './ScreenerConfig';
@@ -8,6 +9,11 @@ import Load from './Commands/load';
 import { PostgresProvider } from './Common/Database/PostgresProvider';
 import yahooFinance from 'yahoo-finance2';
 import { filterOptions } from './Screener/StockFilterService/IStockFilterService';
+import fs from 'fs';
+import path from 'path';
+import ReactDOMServer from 'react-dom/server';
+import App from './frontend/app';
+import cors from 'cors';
 
 function getRequiredArgument(value: unknown, name: string): string {
   if (typeof value !== 'string') {
@@ -40,6 +46,7 @@ const screener = Screener.GetScreener(
 const port = config.port;
 
 app.use(express.json());
+app.use(cors());
 
 app.get('/', (res: Response) => {
   res.send('Hello, TypeScript Express!');
@@ -107,6 +114,22 @@ app.get('/api/filter', async (req: Request, res: Response) => {
   const stocks = await filterTask.runTask(filters);
 
   res.json(stocks);
+});
+
+app.get('/', (res: Response) => {
+  fs.readFile(path.resolve('./public/index.html'), 'utf8', (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('An error occurred');
+    }
+
+    return res.send(
+      data.replace(
+        '<div id="root"></div>',
+        `<div id="root">${ReactDOMServer.renderToString(<App />)}</div>`,
+      ),
+    );
+  });
 });
 
 app.listen(port, () => {

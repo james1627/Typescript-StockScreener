@@ -5,7 +5,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const getModuleExports = () => ({
   mode: 'development',
-  entry: './src/app.ts', // Entry file of your app
+  entry: './src/app.tsx', // Entry file of your app
   target: 'node', // Specify Node.js as the target environment
   output: {
     filename: 'app.cjs', // Output bundle name
@@ -16,7 +16,7 @@ const getModuleExports = () => ({
     minimize: true, // Optional: Minify the output
   },
   resolve: {
-    extensions: ['.ts', '.js'], // Resolve both TypeScript and JavaScript files
+    extensions: ['.ts', '.tsx', '.js'], // Resolve both TypeScript and JavaScript files
   },
   module: {
     rules: [
