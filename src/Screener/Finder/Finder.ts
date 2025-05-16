@@ -1,4 +1,4 @@
-import { Stock } from '~/Common/Stock';
+import { Stock } from '~/Common/stock';
 import IStockRetrieverService from '../StockRetrieverService/IStockRetrieverService';
 import { IFinder } from './IFinder';
 import pLimit from 'p-limit';
@@ -24,6 +24,7 @@ const getNextThirdFriday = (): Date => {
   let month = now.getMonth();
   let year = now.getFullYear();
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const firstDayOfMonth = new Date(year, month, 1);
 
@@ -69,7 +70,7 @@ const getCombinations = (length: number): string[] => {
 export default class Finder implements IFinder {
   private readonly stockRetrieverService: IStockRetrieverService;
 
-  private static readonly batchSize = 1000;
+  private static readonly batchSize = 500;
 
   constructor({ stockRetrieverService }: FinderArgs) {
     this.stockRetrieverService = stockRetrieverService;
@@ -95,11 +96,22 @@ export default class Finder implements IFinder {
   async GetCominationStocks(combinationLength: number): Promise<Stock[]> {
     const possibleTickers: string[] = getCombinations(combinationLength);
 
-    const tickers = await this.processInBatchesAsync(
-      possibleTickers,
+    const mid = Math.floor(possibleTickers.length / 2);
+    const tickers1 = await this.processInBatchesAsync(
+      possibleTickers.slice(0, mid),
       Finder.batchSize,
       this.stockRetrieverService.GetQuotes,
     );
+
+    new Promise((resolve) => setTimeout(resolve, 10000));
+
+    const tickers2 = await this.processInBatchesAsync(
+      possibleTickers.slice(mid),
+      Finder.batchSize,
+      this.stockRetrieverService.GetQuotes,
+    );
+
+    const tickers = tickers1.concat(tickers2);
 
     const validStocks = tickers.flat().filter((t) => !!t);
 

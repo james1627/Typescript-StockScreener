@@ -1,4 +1,4 @@
-import { Stock } from '~/Common/Stock';
+import { Stock } from '~/Common/stock';
 import { IStockRepository } from './IStockRepository';
 import IDatabaseProvider from '~/Common/Database/IDatabaseProvider';
 

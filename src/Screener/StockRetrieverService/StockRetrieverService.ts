@@ -1,5 +1,5 @@
 import { ILoggerService } from '~/Common/ILoggerService';
-import { Stock } from '~/Common/Stock';
+import { Stock } from '~/Common/stock';
 import { Option } from '~/Common/Option';
 import IStockRetrieverService from './IStockRetrieverService';
 import yahooFinance from 'yahoo-finance2';

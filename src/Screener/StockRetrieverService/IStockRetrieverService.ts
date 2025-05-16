@@ -1,4 +1,4 @@
-import { Stock } from '~/Common/Stock';
+import { Stock } from '~/Common/stock';
 import { Option } from '~/Common/Option';
 
 export default interface IStockRetrieverService {

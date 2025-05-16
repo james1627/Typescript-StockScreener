@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable no-fallthrough */
 import { ILoggerService, LogLevel } from './ILoggerService';
 
 export type ConsoleLoggerServiceProps = {

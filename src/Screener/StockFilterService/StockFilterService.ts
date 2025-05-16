@@ -1,4 +1,4 @@
-import { Stock } from '~/Common/Stock';
+import { Stock } from '~/Common/stock';
 import IStockFilterService, { filterOptions } from './IStockFilterService';
 
 export default class StockFilterService implements IStockFilterService {
@@ -83,7 +83,7 @@ export default class StockFilterService implements IStockFilterService {
     max?: number,
   ): boolean {
     if (!value) {
-      return false;
+      return true;
     }
     if (min && value < min) {
       return false;

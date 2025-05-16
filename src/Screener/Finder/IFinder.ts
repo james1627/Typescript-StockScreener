@@ -1,4 +1,4 @@
-import { Stock } from '~/Common/Stock';
+import { Stock } from '~/Common/stock';
 
 export interface IFinder {
   GetCominationStocks(combinationLength: number): Promise<Stock[]>;
