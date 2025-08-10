@@ -39,8 +39,6 @@
     "indicatorts": "^2.2.1",
     "p-limit": "^6.1.0",
     "pandas-js": "^0.2.4",
-    "pg": "^8.13.0",
-    "pg-native": "^3.2.2",
     "yahoo-finance2": "^2.12.4"
   },
   "scripts": {
@@ -52,7 +50,7 @@
     "to": "yarn build && yarn start"
   },
   "volta": {
-    "node": "22.14.0",
-    "yarn": "4.5.0"
+    "node": "24.5.0",
+    "yarn": "4.9.2"
   }
 }
